@@ -285,6 +285,7 @@ class TransformerForDiffusion(ModuleAttrMixin):
         elif torch.is_tensor(timesteps) and len(timesteps.shape) == 0:
             timesteps = timesteps[None].to(sample.device)
         # broadcast to batch dimension in a way that's compatible with ONNX/Core ML
+        # if len(timesteps.shape) == 2:
         timesteps = timesteps.expand(sample.shape[0])
         time_emb = self.time_emb(timesteps).unsqueeze(1)
         # (B,1,n_emb)
