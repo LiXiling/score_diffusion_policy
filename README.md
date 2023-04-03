@@ -3,6 +3,18 @@
 I added the BESO models and the score-based diffusion backbone inspired by the paper [Karras et al. 2022](https://arxiv.org/abs/2206.00364). See ```diffusion_policy/model/beso``` for the code related to 
 the diffusion implementation. 
 
+The following policies are new:
+
+- ```beso_gpt_low_dim_policy.py```: Score-based policy with a GPT-like model
+- ```beso_mlp_low_dim_policy.py```:  Score-based policy with a simple mlp model
+- ```beso_transformer_low_dim_policy.py```: Score-based policy the default time-tranformer
+- ```diffusion_gpt_low_dim_policy.py```: DDPM diffusion policy with the GPT model
+
+The folliwng models have been added:
+
+- ```diffusion_policy.model.beso.score_gpts.DiffusionGPT```: GPT-Diffusion Model
+- ```diffusion_policy.model.beso.score_mlps.GCTimeScoreNetwork```: simple MLP Diffusion Model
+- ```diffusion_policy.model.diffusion.diffusion_gpt.DiffusionGPT```: the GPT variant designed for DDPM
 
 **Samplers**
 All sampling code in ```diffusion_policy/model/beso/sampling```
@@ -31,17 +43,6 @@ I did some experiments with different noise schedulers. The following ones are a
 - karras scheduler[^1]
 
 The exponential sampler worked best with BESO, while the DDIM variant also showed good performance for the fast sampling case of 3 inference steps. 
-
---- 
-
-### Sources
-
-- [^1]: [paper link](https://arxiv.org/abs/2206.00364), Karras, Tero, et al. "Elucidating the Design Space of Diffusion-Based Generative Models." arXiv preprint arXiv:2206.00364 (2022).
-- [^2]: [paper link](https://arxiv.org/abs/2206.00927), Lu, Cheng, et al. "DPM-Solver: A Fast ODE Solver for Diffusion Probabilistic Model Sampling in Around 10 Steps." Advances in Neural Information Processing Systems 35 (2022). 
-
-- [^3]: [paper link](https://arxiv.org/pdf/2211.01095), Lu, Cheng, et al. "DPM-Solver++: Fast Solver for Guided Sampling of Diffusion Probabilistic Models."  arXiv preprint arXiv:2211.01095 (2022).
-
-- [^4]: [paper link](Song, Jiaming, Chenlin Meng, and Stefano Ermon. "Denoising Diffusion Implicit Models." International Conference on Learning Representations.)
 
 ---
 
@@ -447,3 +448,15 @@ This repository is released under the MIT license. See [LICENSE](LICENSE) for ad
 * The [Block Pushing](./diffusion_policy/env/block_pushing) task is adapted from [BET](https://github.com/notmahi/bet) and [IBC](https://github.com/google-research/ibc).
 * The [Kitchen](./diffusion_policy/env/kitchen) task is adapted from [BET](https://github.com/notmahi/bet) and [Relay Policy Learning](https://github.com/google-research/relay-policy-learning).
 * Our [shared_memory](./diffusion_policy/shared_memory) data structures are heavily inspired by [shared-ndarray2](https://gitlab.com/osu-nrsg/shared-ndarray2).
+
+---
+
+
+### Sources
+
+- [^1]: [paper link](https://arxiv.org/abs/2206.00364), Karras, Tero, et al. "Elucidating the Design Space of Diffusion-Based Generative Models." arXiv preprint arXiv:2206.00364 (2022).
+- [^2]: [paper link](https://arxiv.org/abs/2206.00927), Lu, Cheng, et al. "DPM-Solver: A Fast ODE Solver for Diffusion Probabilistic Model Sampling in Around 10 Steps." Advances in Neural Information Processing Systems 35 (2022). 
+
+- [^3]: [paper link](https://arxiv.org/pdf/2211.01095), Lu, Cheng, et al. "DPM-Solver++: Fast Solver for Guided Sampling of Diffusion Probabilistic Models."  arXiv preprint arXiv:2211.01095 (2022).
+
+- [^4]: [paper link](Song, Jiaming, Chenlin Meng, and Stefano Ermon. "Denoising Diffusion Implicit Models." International Conference on Learning Representations.)
