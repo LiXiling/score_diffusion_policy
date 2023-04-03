@@ -24,7 +24,9 @@ OmegaConf.register_new_resolver("eval", eval, replace=True)
     # config_name='train_beso_transformer_lowdim_pusht_workspace.yaml'
     # config_name='train_diffusion_transformer_lowdim_pusht_workspace.yaml'
     # config_name='train_beso_transformer_hybrid_workspace.yaml'
-    config_name='train_beso_gpt_lowdim_pusht_workspace.yaml'
+    # config_name='train_beso_gpt_lowdim_pusht_workspace.yaml'
+    # config_name='train_beso_mlp_lowdim_pusht_workspace.yaml'
+    config_name='train_gpt_transformer_lowdim_pusht_workspace.yaml'
 )
 def main(cfg: OmegaConf):
     # resolve immediately so all the ${now:} resolvers

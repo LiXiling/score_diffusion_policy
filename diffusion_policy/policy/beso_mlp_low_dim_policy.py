@@ -15,6 +15,7 @@ from diffusion_policy.model.beso.sampling import *
 from diffusion_policy.model.beso.utils import *
 from diffusion_policy.model.beso.score_mlps import GCTimeScoreNetwork
 
+
 class BesoMlpLowdimPolicy(BaseLowdimPolicy):
     def __init__(self, 
             model: GCTimeScoreNetwork,
@@ -90,9 +91,8 @@ class BesoMlpLowdimPolicy(BaseLowdimPolicy):
         sigma = self.get_noise_schedule(self.num_inference_steps, self.noise_scheduler)
         
         # call the sample loop method 
-        trajectory = self.sample_loop(sigma, trajectory, cond, self.sampler_type, condition_data, condition_mask, {})
-        # finally make sure conditioning is enforced
-        trajectory[condition_mask] = condition_data[condition_mask] 
+        trajectory = self.sample_loop(sigma, trajectory, cond, self.sampler_type, None, None, {})
+
         
         return trajectory
 
@@ -197,12 +197,6 @@ class BesoMlpLowdimPolicy(BaseLowdimPolicy):
         else:
             trajectory = torch.cat([action, obs], dim=-1)
         
-        # generate impainting mask
-        if self.pred_action_steps_only:
-            condition_mask = torch.zeros_like(trajectory, dtype=torch.bool)
-        else:
-            condition_mask = self.mask_generator(trajectory.shape)
-
         # Sample noise that we'll add to the actions
         # set up the noise
         noise = torch.randn_like(trajectory)
@@ -210,14 +204,12 @@ class BesoMlpLowdimPolicy(BaseLowdimPolicy):
         sigma = self.make_sample_density()(shape=(len(trajectory),), device=self.device)
 
         # compute loss mask
-        loss_mask = ~condition_mask
 
         # apply conditioning
         noisy_trajectory = trajectory +  noise * append_dims(sigma, trajectory.ndim)
-        # use the masking 
-        noisy_trajectory[condition_mask] = trajectory[condition_mask]
+
         # Predict the denoised actions
-        loss = self.model.loss(noisy_trajectory, trajectory, cond, sigma, loss_mask)
+        loss = self.model.loss(noisy_trajectory, trajectory, cond, sigma)
         return loss
 
     def sample_loop(

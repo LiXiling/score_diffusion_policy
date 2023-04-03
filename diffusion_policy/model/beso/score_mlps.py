@@ -32,7 +32,7 @@ class GCTimeScoreNetwork(nn.Module):
         super(GCTimeScoreNetwork, self).__init__()
         self.network_type = "mlp"
         #  Gaussian random feature embedding layer for time
-        self.embed = hydra.utils.call(embed_fn)
+        self.embed = embed_fn
         self.time_embed_dim = embed_fn.time_embed_dim
         input_dim = self.time_embed_dim + cond_dim + input_dim 
         # set up the network

@@ -68,7 +68,7 @@ class GaussianFourierEmbedding(nn.Module):
     
     def __init__(self, time_embed_dim, device):
         super().__init__()
-        self.t_dim = time_embed_dim 
+        self.time_embed_dim = time_embed_dim 
         self.embed = nn.Sequential(
             GaussianFourierProjection(embed_dim=time_embed_dim),
             nn.Linear(time_embed_dim, 2*time_embed_dim),

@@ -23,7 +23,7 @@ class GCDenoiser(nn.Module):
 
     def __init__(self, inner_model, sigma_data=1.):
         super().__init__()
-        self.inner_model = hydra.utils.instantiate(inner_model)
+        self.inner_model = inner_model
         self.sigma_data = sigma_data
 
     def get_scalings(self, sigma):
@@ -32,35 +32,44 @@ class GCDenoiser(nn.Module):
         c_in = 1 / (sigma ** 2 + self.sigma_data ** 2) ** 0.5
         return c_skip, c_out, c_in
 
-    def loss(self, state, action, goal, noise, sigma, **kwargs):
+    def loss(self, noised_action, action, cond, sigma):
         """
-        Method to compute the loss for the denoiser during training
+        Method to compute the loss for the denoiser during training adapted 
+        for the Transformer model from Chi et al. 2023
         
-        :param state: state of the environment
+        :param obs: obs of the environment
         :param action: action taken by the expert
         :param goal: goal of the agent
         :param noise: noise added to the action
         :param sigma: sampled noise levels
         """
-        noised_input = action + noise * append_dims(sigma, action.ndim)
+        noised_input = noised_action
             
         c_skip, c_out, c_in = [append_dims(x, action.ndim) for x in self.get_scalings(sigma)]
-        
+        sigma = sigma.log() / 4
         # Compute the model output 
-        model_output = self.inner_model(state, noised_input * c_in, goal, sigma, **kwargs)
+        pred = self.inner_model(noised_input * c_in, sigma, cond)
         # Compute the target for the denoiser using the scaling factors
         target = (action - c_skip * noised_input) / c_out
-        return (model_output - target).pow(2).flatten(1).mean()
+        loss = F.mse_loss(pred, target, reduction='none')
+        loss = reduce(loss, 'b ... -> b (...)', 'mean')
+        loss = loss.mean()
+        return loss
 
-    def forward(self, state, action, goal, sigma, **kwargs):
+    def forward(self, action, sigma, cond, ):
         """
         Method to compute the denoised action during rollout for the agent
         """
         c_skip, c_out, c_in = [append_dims(x, action.ndim) for x in self.get_scalings(sigma)]
-        return self.inner_model(state, action * c_in, goal, sigma, **kwargs) * c_out + action * c_skip
+        sigma = sigma.log() / 4
+        return self.inner_model(action * c_in, sigma, cond) * c_out + action * c_skip
 
     def get_params(self):
         return self.inner_model.parameters()
+    
+    def parameters(self, recurse=True):
+        for name, param in self.inner_model.named_parameters(recurse=recurse):
+            yield param
     
     
 class GCDenoiserDiffusionTransformer(nn.Module):
@@ -113,3 +122,9 @@ class GCDenoiserDiffusionTransformer(nn.Module):
 
     def get_params(self):
         return self.inner_model.parameters()
+    
+    def parameters(self, recurse=True):
+        for name, param in self.inner_model.named_parameters(recurse=recurse):
+            yield param
+    
+    

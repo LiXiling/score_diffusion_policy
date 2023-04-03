@@ -1,3 +1,50 @@
+# Fork from Diffusion Policy
+
+I added the BESO models and the score-based diffusion backbone inspired by the paper [Karras et al. 2022](https://arxiv.org/abs/2206.00364). See ```diffusion_policy/model/beso``` for the code related to 
+the diffusion implementation. 
+
+
+**Samplers**
+All sampling code in ```diffusion_policy/model/beso/sampling```
+- Heun edm sampler: _sample_heun_
+- Euler Ancestral sampler: _sample_euler_ancestral_
+- Euler edm sampler: _sample_euler_
+- DPM edm sampler: _sample_dpm_2_
+- Linear Multistep sampler: _sample_lms_
+- DDIM sampler: _sample_ddim_
+- DPM ancestral sampler: _sample_dpm_2_ancestral_
+- DPM adaptive solver: _sample_dpm_adaptive_
+- DPM++ 2nd order ancestral sampling: _sample_dpmpp_2s_ancestral_
+- DPM++ solver: _sample_dpmpp_2m_
+
+The *DPM* based Samplers are based on the work of [^2], [^3]. While they showed great performance for image-based diffusion processes, they are did not show better performance for fast sampling than DDIM.(Note: DDIM can be interpreted as a first oder variant of DPM Solver)
+For more inference steps the _sample_dpmpp_2m_ shows strong performance, which comes at the cost of 2nd order update steps. 
+
+**Noise Schedulers**
+
+I did some experiments with different noise schedulers. The following ones are availaible:
+
+- linear
+- cosine
+- ddim variant [^4]
+- exponential
+- karras scheduler[^1]
+
+The exponential sampler worked best with BESO, while the DDIM variant also showed good performance for the fast sampling case of 3 inference steps. 
+
+--- 
+
+### Sources
+
+- [^1]: [paper link](https://arxiv.org/abs/2206.00364), Karras, Tero, et al. "Elucidating the Design Space of Diffusion-Based Generative Models." arXiv preprint arXiv:2206.00364 (2022).
+- [^2]: [paper link](https://arxiv.org/abs/2206.00927), Lu, Cheng, et al. "DPM-Solver: A Fast ODE Solver for Diffusion Probabilistic Model Sampling in Around 10 Steps." Advances in Neural Information Processing Systems 35 (2022). 
+
+- [^3]: [paper link](https://arxiv.org/pdf/2211.01095), Lu, Cheng, et al. "DPM-Solver++: Fast Solver for Guided Sampling of Diffusion Probabilistic Models."  arXiv preprint arXiv:2211.01095 (2022).
+
+- [^4]: [paper link](Song, Jiaming, Chenlin Meng, and Stefano Ermon. "Denoising Diffusion Implicit Models." International Conference on Learning Representations.)
+
+---
+
 # Diffusion Policy
 
 [[Project page]](https://diffusion-policy.cs.columbia.edu/)

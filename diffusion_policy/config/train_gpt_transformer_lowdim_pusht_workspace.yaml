@@ -2,17 +2,17 @@ defaults:
   - _self_
   - task: pusht_lowdim
 
-name: train_beso_mlp_lowdim
-_target_: diffusion_policy.workspace.train_diffusion_unet_lowdim_workspace.TrainDiffusionUnetLowdimWorkspace
+name: train_diffusion_gpt_lowdim
+_target_: diffusion_policy.workspace.train_diffusion_transformer_lowdim_workspace.TrainDiffusionTransformerLowdimWorkspace
 
 obs_dim: ${task.obs_dim}
 action_dim: ${task.action_dim}
 task_name: ${task.name}
 exp_name: "default"
 
-horizon: 1
-n_obs_steps: 1
-n_action_steps: 1
+horizon: 5
+n_obs_steps: 5
+n_action_steps: 5
 n_latency_steps: 0
 past_action_visible: False
 keypoint_visible_rate: 1.0
@@ -20,47 +20,42 @@ obs_as_cond: True
 pred_action_steps_only: False
 
 policy:
-  _target_: diffusion_policy.policy.beso_mlp_low_dim_policy.BesoMlpLowdimPolicy
+  _target_: diffusion_policy.policy.diffusion_gpt_lowdim_policy.DiffusionGPTLowdimPolicy
 
   model:
-    _target_: diffusion_policy.model.beso.score_mlps.GCTimeScoreNetwork
+    _target_: diffusion_policy.model.beso.score_gpts.DiffusionGPT
     input_dim: ${eval:'${action_dim} if ${obs_as_cond} else ${obs_dim} + ${action_dim}'}
-    output_dim: ${policy.model.input_dim}
-    cond_dim: ${eval:'${obs_dim} if ${obs_as_cond} else 0'}
-    embed_fn:
-      _target_: diffusion_policy.model.beso.utils.return_time_sigma_embedding_model
-      # 'GaussianFourier' 'FourierFeatures' or 'Sinusoidal'
-      embedding_type: 'GaussianFourier'
-      time_embed_dim: 16 # ${t_dim} # ${hidden_dim}
-      device: ${training.device}
-    n_layer: 8
-    hidden_dim: 512
-    dropout: 0.0
-    model_style: True # true refers to Residual MLP and false refers to default MLP
-    norm_style: 'BatchNorm'
-    use_norm: False
-    use_spectral_norm: False
-    device: ${training.device}
 
-  num_inference_steps: 3
-  # current sampler types:
-  # 'lms', 'euler', 'heun', 'ancestral', 'dpm', 'euler_ancestral', 'dpmpp_2s_ancestral', 'dpmpp_2m','dpm_fast', 'dpm_adaptive',
-  sampler_type: 'ddim'
-  sigma_data: 0.5
-  rho: 5.
-  sigma_min: 0.4 # 0.002 # 0.42
-  sigma_max: 40 # 40.5 # 33 # 11
-  # sample density stuff
-  sigma_sample_density_type: 'lognormal'
-  sigma_sample_density_mean: -2 # -0.61
-  sigma_sample_density_std: -2  # -2 # 1.58
-  noise_scheduler: 'exponential'
+    device: ${training.device}
+    output_dim: ${policy.model.input_dim}
+    horizon: ${horizon}
+    n_obs_steps: ${n_obs_steps}
+    cond_dim: ${eval:'${obs_dim} if ${obs_as_cond} else 0'}
+
+    n_layer: 8
+    n_head: 4
+    embed_dim: 256
+    p_drop_emb: 0.0
+    p_drop_attn: 0.01
+    resid_pdrop: 0.01
+    linear_output: True
+  
+  noise_scheduler:
+    _target_: diffusers.schedulers.scheduling_ddpm.DDPMScheduler
+    num_train_timesteps: 100
+    beta_start: 0.0001
+    beta_end: 0.02
+    beta_schedule: squaredcos_cap_v2
+    variance_type: fixed_small # Yilun's paper uses fixed_small_log instead, but easy to cause Nan
+    clip_sample: True # required when predict_epsilon=False
+    prediction_type: epsilon # or sample
 
   horizon: ${horizon}
   obs_dim: ${obs_dim}
   action_dim: ${action_dim}
   n_action_steps: ${n_action_steps}
   n_obs_steps: ${n_obs_steps}
+  num_inference_steps: 100
   obs_as_cond: ${obs_as_cond}
   pred_action_steps_only: ${pred_action_steps_only}
 
@@ -90,11 +85,9 @@ val_dataloader:
   persistent_workers: False
 
 optimizer:
-  _target_: torch.optim.AdamW
-  lr: 1.0e-4
-  betas: [0.95, 0.999]
-  eps: 1.0e-8
-  weight_decay: 1.0e-6
+  learning_rate: 1.0e-4
+  weight_decay: 1.0e-1
+  betas: [0.9, 0.95]
 
 training:
   device: "cuda:0"

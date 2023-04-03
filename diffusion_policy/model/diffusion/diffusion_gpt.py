@@ -117,7 +117,7 @@ class Block(nn.Module):
     
 
 class DiffusionGPT(nn.Module):
-    """the full GPT model, with a context size of block_size adapted for score-based diffusion policies"""
+    """the full GPT model, with a context size of block_size adapted for diffusion policies"""
 
     def __init__(
         self,
@@ -185,8 +185,6 @@ class DiffusionGPT(nn.Module):
                 nn.GELU(),  
                 nn.Linear(100, output_dim)
             )
-        # self.action_pred = nn.Linear(embed_dim, action_dim)
-        
         self.apply(self._init_weights)
 
         logger.info(
@@ -288,11 +286,7 @@ class DiffusionGPT(nn.Module):
         output: (B,T,input_dim)
         """
         b, t, dim = cond.size()
-        sigmas = sigmas.to(self.device)
         assert t <= self.block_size, "Cannot forward, model block size is exhausted."
-        if len(sigmas.shape) == 0:
-            sigmas = sigmas.reshape(1)
-        sigmas = sigmas.expand(actions.shape[0])
         sigmas = einops.rearrange(sigmas, 'b -> b 1')
         emb_t = self.sigma_emb(sigmas.to(torch.float32))
         if len(cond.shape) == 3:
@@ -300,6 +294,8 @@ class DiffusionGPT(nn.Module):
         
         # get the beginning of the state action pairs
         second_half_idx = 1
+        # we want to use unconditional sampling during clasisfier free guidance
+
         # embed them into linear representations for the transformer
         state_embed = self.tok_emb(cond)
         action_embed = self.action_emb(actions)
