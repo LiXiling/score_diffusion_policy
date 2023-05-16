@@ -1,48 +1,55 @@
-# Fork from Diffusion Policy
+# Diffusion Policy with continuous-time diffusion policies
 
-I added the BESO models and the score-based diffusion backbone inspired by the paper [Karras et al. 2022](https://arxiv.org/abs/2206.00364). See ```diffusion_policy/model/beso``` for the code related to 
-the diffusion implementation. 
+I added the BESO models and the score-based diffusion backbone from the paper [Paper](https://arxiv.org/pdf/2304.02532). See ```diffusion_policy/model/beso``` for the code related to the continuous time diffusion implementation. 
 
 The following policies are new:
 
 - ```beso_gpt_low_dim_policy.py```: Score-based policy with a GPT-like model
 - ```beso_mlp_low_dim_policy.py```:  Score-based policy with a simple mlp model
-- ```beso_transformer_low_dim_policy.py```: Score-based policy the default time-tranformer
+- ```beso_transformer_low_dim_policy.py```: Score-based policy the default time-transformer
 - ```diffusion_gpt_low_dim_policy.py```: DDPM diffusion policy with the GPT model
 
-The folliwng models have been added:
+The following models have been added:
 
 - ```diffusion_policy.model.beso.score_gpts.DiffusionGPT```: GPT-Diffusion Model
 - ```diffusion_policy.model.beso.score_mlps.GCTimeScoreNetwork```: simple MLP Diffusion Model
 - ```diffusion_policy.model.diffusion.diffusion_gpt.DiffusionGPT```: the GPT variant designed for DDPM
 
-**Samplers**
-All sampling code in ```diffusion_policy/model/beso/sampling```
-- Heun edm sampler: _sample_heun_
-- Euler Ancestral sampler: _sample_euler_ancestral_
-- Euler edm sampler: _sample_euler_
-- DPM edm sampler: _sample_dpm_2_
-- Linear Multistep sampler: _sample_lms_
-- DDIM sampler: _sample_ddim_
-- DPM ancestral sampler: _sample_dpm_2_ancestral_
-- DPM adaptive solver: _sample_dpm_adaptive_
-- DPM++ 2nd order ancestral sampling: _sample_dpmpp_2s_ancestral_
-- DPM++ solver: _sample_dpmpp_2m_
+#### BESO sampling customizations
 
-The *DPM* based Samplers are based on the work of [^2], [^3]. While they showed great performance for image-based diffusion processes, they are did not show better performance for fast sampling than DDIM.(Note: DDIM can be interpreted as a first oder variant of DPM Solver)
-For more inference steps the _sample_dpmpp_2m_ shows strong performance, which comes at the cost of 2nd order update steps. 
+BESO is based on the continuous time diffusion model of [Karras et al. 2022](https://arxiv.org/pdf/2206.00364.pdf), which allows to adapt several hyperameters for fast sampling. Below is an overview of the parameters, that can be changed to further improve the performance:
 
-**Noise Schedulers**
+*Number of Denoising Steps*
 
-I did some experiments with different noise schedulers. The following ones are availaible:
+We can control the number of denoising steps by adapting the parameter: ```n_timesteps```.
 
-- linear
-- cosine
-- ddim variant [^4]
-- exponential
-- karras scheduler[^1]
+*Sampler*
 
-The exponential sampler worked best with BESO, while the DDIM variant also showed good performance for the fast sampling case of 3 inference steps. 
+One can easily swap the used sampler for BESO, by changing the related paramter in the config ```agents.k_diffusion_agent.sampler_type``` with one of the following options:
+
+- ```'ddim'``` _sample_ddim_
+- ```'heun'``` _sample_heun_
+- ```'euler_ancestral'``` _sample_euler_ancestral_
+- ```'euler'``` _sample_euler_
+- ```'dpm'```  _sample_dpm_2_
+- ```'ancestral'``` _sample_dpm_2_ancestral_
+- ```'dpmpp_2s_ancestral'``` _sample_dpmpp_2s_ancestral_
+- ```'dpmpp_2m'``` _sample_dpmpp_2m_
+
+*Noise Scheduler*
+
+There exist several implementations of noise schedulers from common diffusion frameworks:
+
+- ```'exponential'```: Exponential Scheduler
+- ```'linear'```: Default Linear Scheduler 
+- ```'karras'```: Sampler proposed in [Karras et al. 2022](https://arxiv.org/pdf/2206.00364.pdf)
+- ```'cosine'```: Cosine beta scheduler from [Nichol, Alexander Quinn, and Prafulla Dhariwal. 2021](https://arxiv.org/pdf/2102.09672.pdf)
+- ```'iddpm'```: Noise schedule from [IDDPM](https://openreview.net/forum?id=-NEXDKk8gZ)
+- ```'vp'```: Variance Preserving noise schedule from [Song et al. 2021](https://arxiv.org/pdf/2011.13456)
+- ```'ve'```: Variance Exploding noise schedule from [Song et al. 2021](https://arxiv.org/pdf/2011.13456)
+
+The exponential or linear scheduler worked best for our experiments. However, its worth to try out all samplers on a new environment to get the best performance.
+
 
 ---
 

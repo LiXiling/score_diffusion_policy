@@ -47,10 +47,10 @@ policy:
   sampler_type: 'ddim'
   sigma_data: 0.5
   rho: 5.
-  sigma_min: 0.4 # 0.002 # 0.42
-  sigma_max: 40 # 40.5 # 33 # 11
+  sigma_min: 0.005 # 0.002 # 0.42
+  sigma_max: 1 # 40.5 # 33 # 11
   # sample density stuff
-  sigma_sample_density_type: 'lognormal'
+sigma_sample_density_type:  'loglogistic'
   sigma_sample_density_mean: -2 # -0.61
   sigma_sample_density_std: -2  # -2 # 1.58
   noise_scheduler: 'exponential'

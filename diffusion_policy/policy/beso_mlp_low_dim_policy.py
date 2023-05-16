@@ -271,12 +271,44 @@ class BesoMlpLowdimPolicy(BaseLowdimPolicy):
         return x_0    
     
     def make_sample_density(self):
-
+        """ 
+        Generate a sample density function based on the desired type for training the model
+        """
+        sd_config = []
+        
         if self.sigma_sample_density_type == 'lognormal':
-            loc = self.sigma_sample_density_mean  # if 'mean' in sd_config else sd_config['loc']
-            scale = self.sigma_sample_density_std  # if 'std' in sd_config else sd_config['scale']
+            loc = self.sigma_sample_density_mean  
+            scale = self.sigma_sample_density_std 
             return partial(utils.rand_log_normal, loc=loc, scale=scale)
-        raise ValueError('Unknown sample density type')
+        
+        if self.sigma_sample_density_type == 'loglogistic':
+            loc = sd_config['loc'] if 'loc' in sd_config else math.log(self.sigma_data)
+            scale = sd_config['scale'] if 'scale' in sd_config else 0.5
+            min_value = sd_config['min_value'] if 'min_value' in sd_config else self.sigma_min
+            max_value = sd_config['max_value'] if 'max_value' in sd_config else self.sigma_max
+            return partial(utils.rand_log_logistic, loc=loc, scale=scale, min_value=min_value, max_value=max_value)
+        
+        if self.sigma_sample_density_type == 'loguniform':
+            min_value = sd_config['min_value'] if 'min_value' in sd_config else self.sigma_min
+            max_value = sd_config['max_value'] if 'max_value' in sd_config else self.sigma_max
+            return partial(utils.rand_log_uniform, min_value=min_value, max_value=max_value)
+        if self.sigma_sample_density_type == 'uniform':
+            return partial(utils.rand_uniform, min_value=self.sigma_min, max_value=self.sigma_max)
+        
+        if self.sigma_sample_density_type == 'v-diffusion':
+            min_value = self.min_value if 'min_value' in sd_config else self.sigma_min
+            max_value = sd_config['max_value'] if 'max_value' in sd_config else self.sigma_max
+            return partial(utils.rand_v_diffusion, sigma_data=self.sigma_data, min_value=min_value, max_value=max_value)
+        if self.sigma_sample_density_type == 'discrete':
+            sigmas = self.get_noise_schedule(self.n_sampling_steps, 'exponential')
+            return partial(utils.rand_discrete, values=sigmas)
+        if self.sigma_sample_density_type == 'split-lognormal':
+            loc = sd_config['mean'] if 'mean' in sd_config else sd_config['loc']
+            scale_1 = sd_config['std_1'] if 'std_1' in sd_config else sd_config['scale_1']
+            scale_2 = sd_config['std_2'] if 'std_2' in sd_config else sd_config['scale_2']
+            return partial(utils.rand_split_log_normal, loc=loc, scale_1=scale_1, scale_2=scale_2)
+        else:
+            raise ValueError('Unknown sample density type')
     
     def get_noise_schedule(self, n_sampling_steps, noise_schedule_type):
         if noise_schedule_type == 'karras':
