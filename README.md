@@ -65,7 +65,7 @@ The exponential or linear scheduler worked best for our experiments. However, it
 [Cheng Chi](http://cheng-chi.github.io/)<sup>1</sup>,
 [Siyuan Feng](https://www.cs.cmu.edu/~sfeng/)<sup>2</sup>,
 [Yilun Du](https://yilundu.github.io/)<sup>3</sup>,
-[Zhenjia Xu](https://yilundu.github.io/)<sup>1</sup>,
+[Zhenjia Xu](https://www.zhenjiaxu.com/)<sup>1</sup>,
 [Eric Cousineau](https://www.eacousineau.com/)<sup>2</sup>,
 [Benjamin Burchfiel](http://www.benburchfiel.com/)<sup>2</sup>,
 [Shuran Song](https://www.cs.columbia.edu/~shurans/)<sup>1</sup>
@@ -154,7 +154,7 @@ Software:
 `sudo apt install libosmesa6-dev libgl1-mesa-glx libglfw3 patchelf`
 * [RealSense SDK](https://github.com/IntelRealSense/librealsense/blob/master/doc/distribution_linux.md)
 * Spacemouse dependencies: 
-`sudo apt apt install libspnav-dev spacenavd; sudo systemctl start spacenavd`
+`sudo apt install libspnav-dev spacenavd; sudo systemctl start spacenavd`
 * Conda environment `mamba env create -f conda_environment_real.yaml`
 
 ## 🖥️ Reproducing Simulation Benchmark Results 
@@ -257,9 +257,44 @@ data/outputs/2023.03.01/22.13.58_train_diffusion_unet_hybrid_pusht_image
 
 7 directories, 16 files
 ```
+### 🆕 Evaluate Pre-trained Checkpoints
+Download a checkpoint from the published training log folders, such as [https://diffusion-policy.cs.columbia.edu/data/experiments/low_dim/pusht/diffusion_policy_cnn/train_0/checkpoints/epoch=0550-test_mean_score=0.969.ckpt](https://diffusion-policy.cs.columbia.edu/data/experiments/low_dim/pusht/diffusion_policy_cnn/train_0/checkpoints/epoch=0550-test_mean_score=0.969.ckpt).
+
+Run the evaluation script:
+```console
+(robodiff)[diffusion_policy]$ python eval.py --checkpoint data/0550-test_mean_score=0.969.ckpt --output_dir data/pusht_eval_output --device cuda:0
+```
+
+This will generate the following directory structure:
+```console
+(robodiff)[diffusion_policy]$ tree data/pusht_eval_output
+data/pusht_eval_output
+├── eval_log.json
+└── media
+    ├── 1fxtno84.mp4
+    ├── 224l7jqd.mp4
+    ├── 2fo4btlf.mp4
+    ├── 2in4cn7a.mp4
+    ├── 34b3o2qq.mp4
+    └── 3p7jqn32.mp4
+
+1 directory, 7 files
+```
+
+`eval_log.json` contains metrics that is logged to wandb during training:
+```console
+(robodiff)[diffusion_policy]$ cat data/pusht_eval_output/eval_log.json
+{
+  "test/mean_score": 0.9150393806777066,
+  "test/sim_max_reward_4300000": 1.0,
+  "test/sim_max_reward_4300001": 0.9872969750774386,
+...
+  "train/sim_video_1": "data/pusht_eval_output//media/2fo4btlf.mp4"
+}
+```
 
 ## 🦾 Demo, Training and Eval on a Real Robot
-Make sure your UR5 robot is running and accepting command from its network interface (emergency stop button within reach at all time), your RealSense cameras plugged in to your workstation (tested with `realsense-viewer`) and your SpaceMouse connected with the `spacenavd` deamon running (verify with `systemctl status spacenavd`).
+Make sure your UR5 robot is running and accepting command from its network interface (emergency stop button within reach at all time), your RealSense cameras plugged in to your workstation (tested with `realsense-viewer`) and your SpaceMouse connected with the `spacenavd` daemon running (verify with `systemctl status spacenavd`).
 
 Start the demonstration collection script. Press "C" to start recording. Use SpaceMouse to move the robot. Press "S" to stop recording. 
 ```console
