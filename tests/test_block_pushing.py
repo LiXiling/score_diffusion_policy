@@ -5,7 +5,7 @@ ROOT_DIR = os.path.dirname(os.path.dirname(__file__))
 sys.path.append(ROOT_DIR)
 os.chdir(ROOT_DIR)
 import gymnasium as gym
-from gym.wrappers import FlattenObservation
+from gymnasium.wrappers import FlattenObservation
 
 from diffusion_policy.env.block_pushing.block_pushing_multimodal import (
     BlockPushMultimodal,

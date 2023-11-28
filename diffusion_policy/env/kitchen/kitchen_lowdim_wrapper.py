@@ -2,7 +2,7 @@ from typing import Dict, List, Optional
 
 import gymnasium as gym
 import numpy as np
-from gym.spaces import Box
+from gymnasium.spaces import Box
 
 from diffusion_policy.env.kitchen.base import KitchenBase
 

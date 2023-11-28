@@ -1,7 +1,6 @@
 import collections
 
 import cv2
-import gym
 import gymnasium as gym
 import numpy as np
 import pygame
@@ -9,7 +8,7 @@ import pymunk
 import pymunk.pygame_util
 import shapely.geometry as sg
 import skimage.transform as st
-from gym import spaces
+from gymnasium import spaces
 from pymunk.vec2d import Vec2d
 
 from diffusion_policy.env.pusht.pymunk_override import DrawOptions
@@ -89,7 +88,8 @@ class PushTEnv(gym.Env):
         self.latest_action = None
         self.reset_to_state = reset_to_state
 
-    def reset(self):
+    def reset(self, seed=0, options=None):
+        super().reset(seed=seed)
         seed = self._seed
         self._setup()
         if self.block_cog is not None:
@@ -197,7 +197,6 @@ class PushTEnv(gym.Env):
         return info
 
     def _render_frame(self, mode):
-
         if self.window is None and mode == "human":
             pygame.init()
             pygame.display.init()

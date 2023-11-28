@@ -1,6 +1,6 @@
 """Environments using kitchen and Franka robot."""
 import gymnasium as gym
-from gym.envs.registration import register
+from gymnasium.envs.registration import register
 
 register(
     id="kitchen-microwave-kettle-light-slider-v0",

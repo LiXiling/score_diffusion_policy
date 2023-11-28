@@ -23,8 +23,8 @@ import gymnasium as gym
 import numpy as np
 import pybullet
 import pybullet_utils.bullet_client as bullet_client
-from gym import spaces
-from gym.envs import registration
+from gymnasium import spaces
+from gymnasium.envs import registration
 from scipy.spatial import transform
 
 from diffusion_policy.env.block_pushing import block_pushing

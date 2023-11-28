@@ -13,14 +13,14 @@ from enum import Enum
 
 import gymnasium as gym
 import numpy as np
-from gym import logger
-from gym.error import (
+from gymnasium import logger
+from gymnasium.error import (
     AlreadyPendingCallError,
     ClosedEnvironmentError,
     CustomSpaceError,
     NoAsyncCallError,
 )
-from gym.vector.utils import (
+from gymnasium.vector.utils import (
     CloudpickleWrapper,
     clear_mpi_env_vars,
     concatenate,
@@ -29,7 +29,7 @@ from gym.vector.utils import (
     read_from_shared_memory,
     write_to_shared_memory,
 )
-from gym.vector.vector_env import VectorEnv
+from gymnasium.vector.vector_env import VectorEnv
 
 __all__ = ["AsyncVectorEnv"]
 
@@ -84,7 +84,7 @@ class AsyncVectorEnv(VectorEnv):
         dummy_env_fn=None,
         observation_space=None,
         action_space=None,
-        shared_memory=True,
+        shared_memory=False,
         copy=True,
         context=None,
         daemon=True,
@@ -187,7 +187,7 @@ class AsyncVectorEnv(VectorEnv):
         _, successes = zip(*[pipe.recv() for pipe in self.parent_pipes])
         self._raise_if_errors(successes)
 
-    def reset_async(self):
+    def reset_async(self, seed=None, options=None):
         self._assert_is_running()
         if self._state != AsyncState.DEFAULT:
             raise AlreadyPendingCallError(
@@ -200,7 +200,7 @@ class AsyncVectorEnv(VectorEnv):
             pipe.send(("reset", None))
         self._state = AsyncState.WAITING_RESET
 
-    def reset_wait(self, timeout=None):
+    def reset_wait(self, timeout=None, seed=None, options=None):
         """
         Parameters
         ----------
@@ -232,7 +232,7 @@ class AsyncVectorEnv(VectorEnv):
 
         if not self.shared_memory:
             self.observations = concatenate(
-                results, self.observations, self.single_observation_space
+                self.single_observation_space, results, self.observations
             )
 
         return deepcopy(self.observations) if self.copy else self.observations
@@ -295,7 +295,7 @@ class AsyncVectorEnv(VectorEnv):
 
         if not self.shared_memory:
             self.observations = concatenate(
-                observations_list, self.observations, self.single_observation_space
+                self.single_observation_space, observations_list, self.observations
             )
 
         return (

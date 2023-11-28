@@ -3,7 +3,7 @@ from collections import defaultdict, deque
 import dill
 import gymnasium as gym
 import numpy as np
-from gym import spaces
+from gymnasium import spaces
 
 
 def stack_repeated(x, n):

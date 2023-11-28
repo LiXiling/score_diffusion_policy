@@ -1,5 +1,5 @@
 import gymnasium as gym
-from gym.envs.registration import register
+from gymnasium.envs.registration import register
 
 import diffusion_policy.env.pusht
 

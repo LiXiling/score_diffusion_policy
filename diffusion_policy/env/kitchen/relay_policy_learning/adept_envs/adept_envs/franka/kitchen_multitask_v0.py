@@ -22,7 +22,7 @@ import numpy as np
 from adept_envs import robot_env
 from adept_envs.utils.configurable import configurable
 from dm_control.mujoco import engine
-from gym import spaces
+from gymnasium import spaces
 
 
 @configurable(pickleable=True)

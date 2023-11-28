@@ -2,9 +2,9 @@ from copy import deepcopy
 
 import gymnasium as gym
 import numpy as np
-from gym import logger
-from gym.vector.utils import concatenate, create_empty_array
-from gym.vector.vector_env import VectorEnv
+from gymnasium import logger
+from gymnasium.vector.utils import concatenate, create_empty_array
+from gymnasium.vector.vector_env import VectorEnv
 
 __all__ = ["SyncVectorEnv"]
 
@@ -61,7 +61,7 @@ class SyncVectorEnv(VectorEnv):
         for env, seed in zip(self.envs, seeds):
             env.seed(seed)
 
-    def reset_wait(self):
+    def reset_wait(self, seed=None, options=None):
         self._dones[:] = False
         observations = []
         for env in self.envs:

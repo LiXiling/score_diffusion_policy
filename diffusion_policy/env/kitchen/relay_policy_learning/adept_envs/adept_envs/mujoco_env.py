@@ -25,8 +25,8 @@ from typing import Dict, Optional
 import gymnasium as gym
 import numpy as np
 from adept_envs.simulation.sim_robot import MujocoSimRobot, RenderMode
-from gym import spaces
-from gym.utils import seeding
+from gymnasium import spaces
+from gymnasium.utils import seeding
 
 DEFAULT_RENDER_SIZE = 480
 

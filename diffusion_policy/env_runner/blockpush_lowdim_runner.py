@@ -9,7 +9,7 @@ import torch
 import tqdm
 import wandb
 import wandb.sdk.data_types.video as wv
-from gym.wrappers import FlattenObservation
+from gymnasium.wrappers import FlattenObservation
 
 from diffusion_policy.common.pytorch_util import dict_apply
 from diffusion_policy.env.block_pushing.block_pushing_multimodal import (

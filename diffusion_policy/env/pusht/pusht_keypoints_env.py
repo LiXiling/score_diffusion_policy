@@ -2,7 +2,7 @@ from typing import Dict, Optional, Sequence, Union
 
 import gymnasium as gym
 import numpy as np
-from gym import spaces
+from gymnasium import spaces
 
 from diffusion_policy.env.pusht.pusht_env import PushTEnv
 from diffusion_policy.env.pusht.pymunk_keypoint_manager import PymunkKeypointManager

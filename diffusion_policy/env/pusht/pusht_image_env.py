@@ -1,7 +1,7 @@
 import cv2
 import gymnasium as gym
 import numpy as np
-from gym import spaces
+from gymnasium import spaces
 
 from diffusion_policy.env.pusht.pusht_env import PushTEnv
 
