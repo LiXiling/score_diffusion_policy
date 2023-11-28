@@ -1,9 +1,10 @@
-import numpy as np
 from copy import deepcopy
 
+import gymnasium as gym
+import numpy as np
 from gym import logger
-from gym.vector.vector_env import VectorEnv
 from gym.vector.utils import concatenate, create_empty_array
+from gym.vector.vector_env import VectorEnv
 
 __all__ = ["SyncVectorEnv"]
 
@@ -109,7 +110,7 @@ class SyncVectorEnv(VectorEnv):
             "observation spaces from all environments must be "
             "equal.".format(self.single_observation_space)
         )
-    
+
     def call(self, name, *args, **kwargs) -> tuple:
         """Calls the method with name and applies args and kwargs.
 
@@ -131,9 +132,7 @@ class SyncVectorEnv(VectorEnv):
 
         return tuple(results)
 
-    def call_each(self, name: str, 
-            args_list: list=None, 
-            kwargs_list: list=None):
+    def call_each(self, name: str, args_list: list = None, kwargs_list: list = None):
         n_envs = len(self.envs)
         if args_list is None:
             args_list = [[]] * n_envs
@@ -153,10 +152,9 @@ class SyncVectorEnv(VectorEnv):
 
         return tuple(results)
 
-
     def render(self, *args, **kwargs):
-        return self.call('render', *args, **kwargs)
-    
+        return self.call("render", *args, **kwargs)
+
     def set_attr(self, name: str, values):
         """Sets an attribute of the sub-environments.
 

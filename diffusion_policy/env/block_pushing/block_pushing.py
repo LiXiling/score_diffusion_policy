@@ -21,20 +21,18 @@ import math
 import time
 from typing import Dict, List, Optional, Tuple, Union
 
-import gym
-from gym import spaces
-from gym.envs import registration
-from diffusion_policy.env.block_pushing.utils import utils_pybullet
-from diffusion_policy.env.block_pushing.utils import xarm_sim_robot
-from diffusion_policy.env.block_pushing.utils.pose3d import Pose3d
-from diffusion_policy.env.block_pushing.utils.utils_pybullet import ObjState
-from diffusion_policy.env.block_pushing.utils.utils_pybullet import XarmState
+import gymnasium as gym
+import matplotlib.pyplot as plt
 import numpy as np
-from scipy.spatial import transform
 import pybullet
 import pybullet_utils.bullet_client as bullet_client
+from gym import spaces
+from gym.envs import registration
+from scipy.spatial import transform
 
-import matplotlib.pyplot as plt
+from diffusion_policy.env.block_pushing.utils import utils_pybullet, xarm_sim_robot
+from diffusion_policy.env.block_pushing.utils.pose3d import Pose3d
+from diffusion_policy.env.block_pushing.utils.utils_pybullet import ObjState, XarmState
 
 BLOCK_URDF_PATH = "third_party/py/envs/assets/block.urdf"
 PLANE_URDF_PATH = "third_party/bullet/examples/pybullet/gym/pybullet_data/" "plane.urdf"
@@ -189,7 +187,7 @@ class BlockPush(gym.Env):
         goal_dist_tolerance=0.01,
         effector_height=None,
         visuals_mode="default",
-        abs_action=False
+        abs_action=False,
     ):
         """Creates an env instance.
 
@@ -883,7 +881,6 @@ class BlockPushNormalized(gym.Env):
 
     @classmethod
     def calc_normalized_state(cls, state):
-
         effector_target_translation = cls._normalize(
             state["effector_target_translation"],
             EFFECTOR_TARGET_TRANSLATION_MIN,
@@ -926,7 +923,6 @@ class BlockPushNormalized(gym.Env):
 
     @classmethod
     def calc_unnormalized_state(cls, norm_state):
-
         effector_target_translation = cls._unnormalize(
             norm_state["effector_target_translation"],
             EFFECTOR_TARGET_TRANSLATION_MIN,
